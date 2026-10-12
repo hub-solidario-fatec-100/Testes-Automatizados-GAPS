@@ -19,7 +19,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
-CHALLENGES = json.loads((Path(__file__).parent / "challenges.json").read_text(encoding="utf-8"))
+CHALLENGES = json.loads(
+    (Path(__file__).parent / "challenges.json").read_text(encoding="utf-8")
+)
 
 Base.metadata.create_all(bind=engine)
 
@@ -35,14 +37,18 @@ def get_or_create_aluno(db: Session) -> Aluno:
 
 
 @app.get("/", response_class=HTMLResponse)
-def index(request: Request, db: Session = Depends(get_db)):
+def index(request: Request, db: Session = Depends(get_db)):  # noqa: B008
     aluno = get_or_create_aluno(db)
     desafio = random.choice(CHALLENGES)
-    return templates.TemplateResponse(request, "index.html", {
-        "desafio": desafio,
-        "aluno": aluno,
-        "timestamp": time.time(),
-    })
+    return templates.TemplateResponse(
+        request,
+        "index.html",
+        {
+            "desafio": desafio,
+            "aluno": aluno,
+            "timestamp": time.time(),
+        },
+    )
 
 
 @app.post("/responder", response_class=HTMLResponse)
@@ -51,7 +57,7 @@ def responder(
     resposta: str = Form(...),
     desafio_id: int = Form(...),
     timestamp: float = Form(...),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db),  # noqa: B008
 ):
     aluno = get_or_create_aluno(db)
     desafio = next((d for d in CHALLENGES if d["id"] == desafio_id), None)
@@ -71,9 +77,13 @@ def responder(
         db.commit()
         db.refresh(aluno)
 
-    return templates.TemplateResponse(request, "result.html", {
-        "acertou": acertou,
-        "xp_ganho": xp_ganho,
-        "aluno": aluno,
-        "nivel_subiu": nivel_subiu,
-    })
+    return templates.TemplateResponse(
+        request,
+        "result.html",
+        {
+            "acertou": acertou,
+            "xp_ganho": xp_ganho,
+            "aluno": aluno,
+            "nivel_subiu": nivel_subiu,
+        },
+    )
