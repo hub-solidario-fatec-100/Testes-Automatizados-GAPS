@@ -25,3 +25,8 @@ markers = [
     "integration: testes de integração",
     "e2e: testes end-to-end",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]
